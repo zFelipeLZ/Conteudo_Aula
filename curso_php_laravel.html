@@ -1,0 +1,1405 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Bíblia do PHP: Do Zero ao Laravel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --bg-surface: #18181b;
+            --bg-surface-hover: #27272a;
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --accent-green: #10b981;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.8;
+            display: flex;
+            font-size: 1.15rem;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at 10% 40%, rgba(59, 130, 246, 0.08), transparent 30%),
+                        radial-gradient(circle at 90% 20%, rgba(239, 68, 68, 0.05), transparent 30%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Sidebar Navegação */
+        .sidebar {
+            width: 360px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--glass-border);
+            padding: 40px 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+
+        .sidebar-brand {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 25px;
+            padding-left: 10px;
+            line-height: 1.2;
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-module {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-left: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-module::after {
+            content: ''; flex: 1; height: 1px; background: var(--glass-border);
+        }
+
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 5px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: var(--bg-surface-hover);
+            color: var(--text-primary);
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex: 1;
+            padding: 80px;
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        section { margin-bottom: 100px; padding-top: 20px; }
+
+        /* Divisores de Módulo Grandes */
+        .module-divider {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+            border: 1px solid var(--glass-border);
+            padding: 100px 50px;
+            border-radius: 24px;
+            margin: 60px 0 80px 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-divider::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+        }
+
+        .module-divider span {
+            color: var(--accent-blue);
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .module-divider h1 {
+            font-size: 4rem;
+            margin-top: 15px;
+            margin-bottom: 0;
+            line-height: 1.1;
+            background: linear-gradient(to right, #fff, #d4d4d8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 25px; color: #fff; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); }
+        h3 { font-size: 1.6rem; font-weight: 700; margin-top: 45px; margin-bottom: 15px; color: var(--text-primary); }
+        p { color: var(--text-secondary); margin-bottom: 20px; }
+        strong { color: #fff; }
+
+        /* Caixas de Explicação Aprofundada */
+        .deep-dive {
+            background: rgba(139, 92, 246, 0.05);
+            border-left: 4px solid var(--accent-purple);
+            padding: 25px 30px;
+            border-radius: 0 12px 12px 0;
+            margin: 30px 0;
+        }
+        .deep-dive h4 { color: var(--accent-purple); font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        .deep-dive p { margin-bottom: 0; font-size: 1.05rem; }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--accent-blue);
+            padding: 25px 30px;
+            border-radius: 0 12px 12px 0;
+            margin: 30px 0;
+        }
+        .info-box strong { color: var(--accent-blue); display: block; margin-bottom: 8px; font-size: 1.2rem; }
+
+        /* Atividades Práticas */
+        .mini-task {
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px dashed rgba(245, 158, 11, 0.4);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 40px 0;
+            position: relative;
+        }
+        .mini-task::before {
+            content: '⚡ HORA DE CODAR';
+            position: absolute; top: -14px; left: 25px;
+            background: var(--accent-amber); color: #000;
+            font-size: 0.8rem; font-weight: 900; padding: 6px 14px; border-radius: 20px;
+        }
+        .mini-task p { margin: 0; color: var(--text-primary); }
+
+        /* Blocos de Código */
+        .code-container { position: relative; margin: 30px 0; }
+        .code-badge {
+            position: absolute; top: 0; right: 0;
+            background: rgba(255,255,255,0.1); color: var(--text-secondary);
+            font-size: 0.8rem; font-weight: 600; padding: 6px 12px;
+            border-bottom-left-radius: 8px; border-top-right-radius: 12px;
+        }
+        pre {
+            background: #18181b !important; border: 1px solid #27272a;
+            border-radius: 12px; padding: 35px 25px 25px 25px !important; overflow-x: auto;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 1rem; line-height: 1.6;}
+
+        /* Tabelas Cheat Sheet */
+        .cheat-sheet {
+            background: var(--bg-surface); border: 1px solid var(--glass-border);
+            border-radius: 12px; overflow: hidden; margin: 40px 0;
+        }
+        .cheat-sheet-header {
+            background: rgba(139, 92, 246, 0.1); padding: 18px 25px;
+            font-size: 1.1rem; font-weight: 800; color: var(--accent-purple); border-bottom: 1px solid var(--glass-border);
+        }
+        .cheat-sheet table { width: 100%; border-collapse: collapse; }
+        .cheat-sheet th, .cheat-sheet td { padding: 16px 25px; text-align: left; font-size: 1rem; }
+        .cheat-sheet th { background: rgba(255,255,255,0.02); color: var(--text-secondary); }
+        .cheat-sheet tr { border-bottom: 1px solid var(--glass-border); }
+        .cheat-sheet tr:last-child { border-bottom: none; }
+        .cheat-sheet code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #fff; }
+        
+        /* Bridge Laravel */
+        .laravel-bridge {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.15));
+            border-left: 5px solid var(--accent-red);
+            padding: 25px 30px; border-radius: 0 12px 12px 0; margin: 35px 0;
+        }
+        .laravel-bridge h4 { color: var(--accent-red); margin-bottom: 12px; font-size: 1.25rem; font-weight: 800;}
+
+        /* Estilos de Lista */
+        ul { margin-bottom: 20px; padding-left: 20px; color: var(--text-secondary); }
+        li { margin-bottom: 10px; }
+        li strong { color: var(--text-primary); }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">Bíblia do PHP<br><span style="font-size:1rem; color:var(--text-tertiary); font-weight:500;">Guia de Estudos Profundo</span></div>
+        
+        <!-- Módulo 1 -->
+        <div class="sidebar-module">Módulo 1: O Núcleo do PHP</div>
+        <ul class="nav-links">
+            <li><a href="#intro" class="active">O que é o PHP?</a></li>
+            <li><a href="#variaveis">Variáveis, Regras e Tipos</a></li>
+            <li><a href="#strings">Trabalhando com Strings</a></li>
+            <li><a href="#operadores">Operadores e Concatenação</a></li>
+            <li><a href="#condicionais">Condicionais: If e Match</a></li>
+            <li><a href="#lacos">Laços: For, While, Foreach</a></li>
+            <li><a href="#arrays">Arrays e Matrizes</a></li>
+            <li><a href="#funcoes-arrays">Funções Nativas de Arrays</a></li>
+            <li><a href="#funcoes">Funções e Escopo</a></li>
+            <li><a href="#formularios">Formulários: GET vs POST</a></li>
+            <li><a href="#sessoes">Sessões e Cookies</a></li>
+            <li><a href="#includes">Include, Require e Once</a></li>
+            <li><a href="#atividades-mod1">🏆 Atividades Finais Módulo 1</a></li>
+        </ul>
+
+        <!-- Módulo 2 -->
+        <div class="sidebar-module">Módulo 2: O Domínio do Banco</div>
+        <ul class="nav-links">
+            <li><a href="#mysql-intro">PDO: O Padrão Ouro</a></li>
+            <li><a href="#mysql-insert">CRIAR: O Segredo do Prepare</a></li>
+            <li><a href="#mysql-select">LER: Fetch vs FetchAll</a></li>
+            <li><a href="#mysql-update">ATUALIZAR: A regra do WHERE</a></li>
+            <li><a href="#mysql-delete">DELETAR: Limpeza Segura</a></li>
+        </ul>
+
+        <!-- Módulo 3 -->
+        <div class="sidebar-module">Módulo 3: POO e o Laravel</div>
+        <ul class="nav-links">
+            <li><a href="#poo-basico">Classes, Objetos e Visibilidade</a></li>
+            <li><a href="#poo-avancado">Herança e Construtores</a></li>
+            <li><a href="#laravel">O Ecossistema Laravel Profundo</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        
+        <!-- ============================================== -->
+        <!-- MÓDULO 1: INTRODUÇÃO PHP                       -->
+        <!-- ============================================== -->
+        <div class="module-divider" id="modulo1">
+            <span>Módulo 1</span>
+            <h1>O Núcleo do PHP</h1>
+            <p style="margin-top: 20px; font-size: 1.2rem; color: #a1a1aa;">Uma imersão profunda nas regras de negócio e lógica de programação.</p>
+        </div>
+
+        <!-- ─── INTRODUÇÃO ─── -->
+        <section id="intro">
+            <h2>O que é o PHP na Prática?</h2>
+            <p>Quando você acessa um site, duas coisas acontecem ao mesmo tempo: o que roda no <strong>seu computador</strong> (Client-Side) e o que roda no <strong>computador da empresa</strong> dona do site (Server-Side).</p>
+            <ul>
+                <li><strong>Client-Side (Navegador):</strong> Lê HTML, CSS e JavaScript. Pinta a tela, anima botões e responde ao clique do mouse. O usuário vê e interage aqui.</li>
+                <li><strong>Server-Side (Servidor):</strong> É onde o PHP mora. Tem acesso ao Banco de Dados, verifica senhas, calcula preços e decide o que cada usuário pode ver. O resultado chega ao navegador já como HTML estático e seguro.</li>
+            </ul>
+            <div class="deep-dive">
+                <h4>🔍 Por que aprender PHP?</h4>
+                <p>Cerca de 77% de todos os sites do mundo usam PHP no servidor (WordPress, Wikipedia, Facebook usam PHP). Ele foi criado especificamente para a web, roda em qualquer hospedagem por menos de R$20/mês, e com o framework <strong>Laravel</strong> é uma das stacks mais contratadas do mercado brasileiro hoje.</p>
+            </div>
+            <div class="info-box">
+                <strong>Como rodar PHP no seu computador?</strong>
+                Instale o <strong>XAMPP</strong> (gratuito). Ele cria um servidor Apache + MySQL + PHP na sua máquina. Depois, coloque seus arquivos <code>.php</code> dentro da pasta <code>htdocs</code> e acesse pelo navegador em <code>http://localhost/seu_arquivo.php</code>.
+            </div>
+        </section>
+
+        <!-- ─── VARIÁVEIS ─── -->
+        <section id="variaveis">
+            <h2>Variáveis, Regras e Tipos de Dados</h2>
+            <p>Variáveis são espaços na memória do servidor para guardar dados temporariamente. Pense nelas como <strong>gavetas etiquetadas</strong>: você cria uma gaveta, escreve um nome na etiqueta e coloca algo dentro para pegar mais tarde.</p>
+
+            <h3>As 3 Regras de Ouro das Variáveis</h3>
+            <ol style="margin-left: 20px; color: var(--text-secondary); margin-bottom: 25px; line-height: 2.2;">
+                <li>Toda variável <strong>obrigatoriamente</strong> começa com cifrão <code>$</code>. Ex: <code>$cliente</code>.</li>
+                <li>Variáveis <strong>não</strong> podem começar com números nem conter espaços. (✅ <code>$nome1</code> | ❌ <code>$1nome</code> | ❌ <code>$nome do cliente</code>).</li>
+                <li>PHP é <em>Case-Sensitive</em>: <code>$Nome</code> e <code>$nome</code> são variáveis completamente diferentes!</li>
+            </ol>
+
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// ===== OS 4 TIPOS ESCALARES (Básicos) =====
+$nomeAluno     = "Carlos";   // String: Texto. Sempre entre aspas simples ou duplas.
+$anoNascimento = 1995;       // Integer (int): Número inteiro. SEM ponto.
+$peso          = 75.5;       // Float: Número decimal. Use PONTO, nunca vírgula!
+$matriculado   = true;       // Boolean: só true (verdadeiro) ou false (falso).
+
+// ===== FERRAMENTAS DE INSPEÇÃO =====
+echo $nomeAluno;             // Mostra o valor
+var_dump($peso);             // Mostra o valor E o tipo: float(75.5)
+print_r($nomeAluno);         // Parecido com echo, mas funciona melhor com Arrays
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="cheat-sheet">
+                <div class="cheat-sheet-header">📌 Tabela de Tipos de Dados</div>
+                <table>
+                    <tr><th>Tipo</th><th>Exemplo</th><th>Uso Real</th></tr>
+                    <tr><td><strong>String</strong></td><td><code>"Olá Mundo"</code></td><td>Nomes, e-mails, endereços, senhas.</td></tr>
+                    <tr><td><strong>Integer</strong></td><td><code>42</code>, <code>-10</code></td><td>Idades, quantidades, IDs de banco.</td></tr>
+                    <tr><td><strong>Float</strong></td><td><code>9.99</code>, <code>1.5</code></td><td>Preços, pesos, notas, porcentagens.</td></tr>
+                    <tr><td><strong>Boolean</strong></td><td><code>true</code> / <code>false</code></td><td>Flags de login, ativo/inativo, sim/não.</td></tr>
+                    <tr><td><strong>Null</strong></td><td><code>null</code></td><td>Variável que existe mas está vazia/sem valor.</td></tr>
+                    <tr><td><strong>Array</strong></td><td><code>["a", "b"]</code></td><td>Listas de produtos, usuários, configurações.</td></tr>
+                </table>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Atividade 1.1 — Seu Cartão de Visita:</strong><br><br>
+                Crie um arquivo <code>cartao.php</code>. Declare variáveis para o seu <code>$nome</code>, <code>$profissao</code>, <code>$email</code> e <code>$anoDeNascimento</code>. Depois, calcule sua idade subtraindo o ano de nascimento do ano atual (<code>2025 - $anoDeNascimento</code>) e exiba tudo numa frase usando <code>echo</code>.<br><br>
+                <strong>Resultado esperado:</strong> <em>"Olá! Sou Carlos, tenho 30 anos, sou Desenvolvedor e meu email é carlos@mail.com"</em></p>
+            </div>
+        </section>
+
+        <!-- ─── STRINGS ─── -->
+        <section id="strings">
+            <h2>Trabalhando com Strings</h2>
+            <p>Strings são o tipo de dado mais usado no dia a dia de um programador web. O PHP oferece dezenas de funções nativas para manipular textos com facilidade.</p>
+
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$frase = "  Aprender PHP é incrível!  ";
+
+// ===== FUNÇÕES ESSENCIAIS DE STRING =====
+echo strlen($frase);              // Conta quantos caracteres tem: 28
+echo strtoupper($frase);          // COLOCA TUDO EM MAIÚSCULO
+echo strtolower($frase);          // coloca tudo em minúsculo
+echo trim($frase);                // Remove os espaços das bordas: "Aprender PHP..."
+echo str_replace("PHP", "Laravel", $frase); // Troca uma palavra por outra
+echo strpos($frase, "PHP");       // Retorna a posição onde "PHP" começa: 10
+echo substr($frase, 10, 3);       // Pega 3 letras a partir da posição 10: "PHP"
+
+// ===== CONCATENAÇÃO vs INTERPOLAÇÃO =====
+$nome = "Batman";
+$cidade = "Gotham";
+
+echo "O herói " . $nome . " mora em " . $cidade; // Concatenação com ponto
+echo "O herói {$nome} mora em {$cidade}";         // Interpolação (mais elegante)
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="cheat-sheet">
+                <div class="cheat-sheet-header">📌 Funções de String Mais Usadas</div>
+                <table>
+                    <tr><th>Função</th><th>O que faz?</th><th>Exemplo</th></tr>
+                    <tr><td><code>strlen($str)</code></td><td>Conta os caracteres</td><td><code>strlen("PHP")</code> → <code>3</code></td></tr>
+                    <tr><td><code>strtoupper($str)</code></td><td>Tudo em MAIÚSCULO</td><td><code>"php"</code> → <code>"PHP"</code></td></tr>
+                    <tr><td><code>strtolower($str)</code></td><td>Tudo em minúsculo</td><td><code>"PHP"</code> → <code>"php"</code></td></tr>
+                    <tr><td><code>trim($str)</code></td><td>Remove espaços das bordas</td><td><code>"  oi  "</code> → <code>"oi"</code></td></tr>
+                    <tr><td><code>str_replace($b,$n,$str)</code></td><td>Substitui texto</td><td>Troca "carro" por "moto"</td></tr>
+                    <tr><td><code>strpos($str,$busca)</code></td><td>Acha a posição de um texto</td><td>Retorna número ou <code>false</code></td></tr>
+                    <tr><td><code>ucfirst($str)</code></td><td>Capitaliza a primeira letra</td><td><code>"paulo"</code> → <code>"Paulo"</code></td></tr>
+                    <tr><td><code>explode($sep,$str)</code></td><td>Quebra string em Array</td><td><code>"a,b,c"</code> → <code>["a","b","c"]</code></td></tr>
+                </table>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Atividade 1.2 — O Formatador de Nome:</strong><br><br>
+                Crie um arquivo <code>formatar_nome.php</code>. Crie a variável <code>$nomeDigitado = "   joÃO DA SiLvA   ";</code>. Usando funções de string, transforme esse nome bagunçado em: <em>"João Da Silva"</em> (sem espaços extras, com capitalização correta). Funções necessárias: <code>trim()</code> e <code>ucwords(strtolower(...))</code>.</p>
+            </div>
+        </section>
+
+        <!-- ─── OPERADORES ─── -->
+        <section id="operadores">
+            <h2>Operadores: Matemática e Lógica</h2>
+            <p>Além de calcular, os operadores definem a lógica de decisão do seu programa. Entender todos eles é fundamental.</p>
+
+            <h3>Operadores Matemáticos e de Atribuição</h3>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$a = 10;
+$b = 3;
+
+// Matemáticos
+echo $a + $b;   // 13 (Soma)
+echo $a - $b;   // 7  (Subtração)
+echo $a * $b;   // 30 (Multiplicação)
+echo $a / $b;   // 3.333... (Divisão)
+echo $a % $b;   // 1  (Módulo = RESTO da divisão. 10/3=3, sobra 1)
+echo $a ** $b;  // 1000 (Potência: 10 elevado a 3)
+
+// Atribuição Composta (Atalhos poderosos!)
+$a += 5;   // Equivale a: $a = $a + 5;  → $a vira 15
+$a -= 2;   // Equivale a: $a = $a - 2;  → $a vira 13
+$a *= 2;   // Equivale a: $a = $a * 2;  → $a vira 26
+$a++;      // Incrementa +1. Idêntico a: $a = $a + 1;
+$a--;      // Decrementa -1.
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="deep-dive">
+                <h4>🔍 Por que o Módulo (%) é tão útil?</h4>
+                <p>Quer saber se um número é par ou ímpar? Basta checar se o resto da divisão por 2 é zero! <code>if ($numero % 2 === 0)</code> significa "se não sobrar nada ao dividir por 2, é par". Esse truque é usado em listas alternadas (linhas par/ímpar com cores diferentes), paginação, geração de IDs alternados e muito mais.</p>
+            </div>
+
+            <div class="cheat-sheet">
+                <div class="cheat-sheet-header">📌 Operadores de Comparação (Para usar no If)</div>
+                <table>
+                    <tr><th>Operador</th><th>Significado</th><th>Exemplo</th></tr>
+                    <tr><td><code>==</code></td><td>Igual (valor apenas)</td><td><code>10 == "10"</code> → true ⚠️</td></tr>
+                    <tr><td><code>===</code></td><td>Idêntico (valor E tipo)</td><td><code>10 === "10"</code> → false ✅</td></tr>
+                    <tr><td><code>!=</code></td><td>Diferente (valor)</td><td><code>5 != 3</code> → true</td></tr>
+                    <tr><td><code>!==</code></td><td>Não idêntico (valor E tipo)</td><td><code>5 !== "5"</code> → true</td></tr>
+                    <tr><td><code>></code> / <code><</code></td><td>Maior / Menor</td><td><code>18 > 16</code> → true</td></tr>
+                    <tr><td><code>>=</code> / <code><=</code></td><td>Maior ou igual / Menor ou igual</td><td><code>18 >= 18</code> → true</td></tr>
+                    <tr><td><code>&&</code></td><td>E lógico (ambos devem ser verdade)</td><td><code>$logado && $admin</code></td></tr>
+                    <tr><td><code>||</code></td><td>OU lógico (basta um ser verdade)</td><td><code>$admin || $editor</code></td></tr>
+                    <tr><td><code>!</code></td><td>Negação (inverte verdadeiro/falso)</td><td><code>!$logado</code></td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ─── CONDICIONAIS ─── -->
+        <section id="condicionais">
+            <h2>Condicionais: If, Elseif, Else e Match</h2>
+            <p>Toda aplicação real toma decisões o tempo todo: "Esse usuário tem permissão para ver isso?", "O estoque tem produto suficiente?". As condicionais são o mecanismo que permite ao PHP raciocinar.</p>
+
+            <h3>A Escadinha: if / elseif / else</h3>
+            <p>O PHP testa as condições de cima para baixo. Assim que encontra a primeira verdadeira, executa aquele bloco e <strong>ignora todos os outros</strong>.</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$nota = 7.5;
+
+if ($nota >= 9) {
+    echo "Aprovado com Distinção! 🏆";
+} elseif ($nota >= 7) {
+    // Só chega aqui se a condição acima for falsa
+    echo "Aprovado! ✅";
+} elseif ($nota >= 5) {
+    echo "Recuperação. Estude mais!";
+} else {
+    // Só chega aqui se TODAS as anteriores falharem
+    echo "Reprovado. ❌";
+}
+// Com nota 7.5, imprime: "Aprovado!"
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="deep-dive">
+                <h4>🔍 Diferença entre == e === (MUITO IMPORTANTE!)</h4>
+                <p>O operador <code>==</code> compara apenas o <em>valor</em>. O PHP faz uma conversão automática por baixo dos panos antes de comparar. Por isso <code>0 == "abc"</code> retorna <strong>true</strong>, o que é completamente errado!<br><br>
+                O operador <code>===</code> (três iguais) compara o valor <em>E o tipo</em>. Não há conversão. É preciso e seguro. <strong>Em código profissional, sempre use <code>===</code>.</strong></p>
+            </div>
+
+            <h3>O Operador Ternário (If em uma linha)</h3>
+            <p>Quando a lógica é simples (apenas dois caminhos), você pode escrever o if inteiro em uma linha só:</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$idade = 20;
+
+// Estrutura: (condição) ? "se verdade" : "se falso"
+$status = ($idade >= 18) ? "Maior de idade" : "Menor de idade";
+echo $status; // Imprime: "Maior de idade"
+
+// Uso real: definir label de botão
+$logado = true;
+$label = $logado ? "Sair" : "Entrar";
+echo "&lt;button&gt;{$label}&lt;/button&gt;";
+?&gt;
+                </code></pre>
+            </div>
+
+            <h3>O Moderno: Comando Match (PHP 8.0+)</h3>
+            <p>O <code>match</code> é um switch evoluído. Ele compara com <code>===</code> (tipo e valor), retorna um valor diretamente para uma variável e lança um erro se nenhum caso bater (sem o <code>default</code>).</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$codigoHttp = 404;
+
+$mensagem = match($codigoHttp) {
+    200, 201 => "Sucesso! Dados recebidos.",   // Vários casos na mesma linha!
+    301, 302 => "Redirecionando...",
+    400      => "Requisição inválida.",
+    401      => "Não autorizado. Faça login.",
+    403      => "Acesso proibido.",
+    404      => "Página não encontrada.",
+    500      => "Erro interno do servidor.",
+    default  => "Código desconhecido."
+};
+
+echo $mensagem; // "Página não encontrada."
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Atividade 1.3 — O Sistema de Notas:</strong><br><br>
+                Crie um arquivo <code>notas.php</code>. Crie uma variável <code>$media</code> com um valor numérico entre 0 e 10.<br>
+                Use <strong>if/elseif/else</strong> para classificar: média ≥ 9 = "Excelente", ≥ 7 = "Bom", ≥ 5 = "Regular", abaixo = "Insuficiente".<br><br>
+                <strong>Bônus:</strong> Refaça o mesmo usando o comando <code>match</code> ao invés do if!</p>
+            </div>
+        </section>
+
+        <!-- ─── LAÇOS ─── -->
+        <section id="lacos">
+            <h2>Laços de Repetição: For, While, Do/While e Foreach</h2>
+            <p>Loops automatizam tarefas repetitivas. Sistemas reais usam loops para renderizar listas de produtos, processar linhas de um CSV, enviar e-mails em massa ou construir tabelas HTML dinamicamente.</p>
+
+            <h3>O For — Quando sabemos quantas vezes</h3>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Estrutura: for (início; condição de parada; passo)
+for ($i = 1; $i <= 5; $i++) {
+    echo "Volta número: {$i} &lt;br&gt;";
+}
+
+// Exemplo real: Gerar uma tabela HTML de multiplicação
+echo "&lt;table border='1'&gt;";
+for ($n = 1; $n <= 5; $n++) {
+    echo "&lt;tr&gt;&lt;td&gt;{$n} x 2 = " . ($n * 2) . "&lt;/td&gt;&lt;/tr&gt;";
+}
+echo "&lt;/table&gt;";
+?&gt;
+                </code></pre>
+            </div>
+
+            <h3>O While — Quando não sabemos quantas vezes</h3>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Enquanto ($condicao for verdadeira), execute...
+$tentativas = 0;
+$senhaCorreta = "abc123";
+$senhaDigitada = "errada";
+
+while ($senhaDigitada !== $senhaCorreta && $tentativas < 3) {
+    $tentativas++;
+    echo "Tentativa {$tentativas}: Senha errada! &lt;br&gt;";
+    // Num sistema real, aqui viria uma nova leitura do usuário
+    $senhaDigitada = "abc123"; // Simula o usuário acertando na 2ª tentativa
+}
+echo "Bem-vindo!";
+?&gt;
+                </code></pre>
+            </div>
+
+            <h3>O Foreach — O rei dos Arrays</h3>
+            <p>O <code>foreach</code> foi criado especificamente para percorrer Arrays. Ele automaticamente pega item por item sem você precisar controlar um contador.</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$produtos = ["Notebook", "Mouse", "Teclado", "Monitor"];
+
+// Versão simples: apenas o valor
+foreach ($produtos as $produto) {
+    echo "Produto: {$produto} &lt;br&gt;";
+}
+
+// Versão completa: a chave E o valor (Essencial com Arrays Associativos)
+$pessoa = ["nome" => "Ana", "idade" => 28, "cidade" => "Curitiba"];
+foreach ($pessoa as $campo => $valor) {
+    echo "{$campo}: {$valor} &lt;br&gt;";
+}
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>Break e Continue: O Freio e o Pulo</strong><br>
+                • <code>break;</code> — Para o laço completamente na hora. Use quando encontrar o que procurava.<br>
+                • <code>continue;</code> — Pula o restante do código daquela rodada e vai para a próxima. Use para ignorar itens inválidos sem parar o loop.
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Atividade 1.4 — Números Pares e Ímpares:</strong><br><br>
+                Crie um arquivo <code>pares.php</code>. Use um laço <code>for</code> que vá de 1 até 20. Dentro do loop, use o operador <strong>módulo (%)</strong> para checar se o número é par ou ímpar. Se for par, imprima em verde. Se for ímpar, imprima em vermelho.<br><br>
+                <strong>Dica:</strong> Use <code>echo "&lt;span style='color:green'&gt;{$i} é par&lt;/span&gt;";</code></p>
+            </div>
+        </section>
+
+        <!-- ─── ARRAYS ─── -->
+        <section id="arrays">
+            <h2>Arrays: Listas Simples, Associativas e Matrizes</h2>
+            <p>Arrays são a estrutura de dados mais poderosa do PHP. Tudo que você receber de um banco de dados, de um formulário ou de uma API externa chegará no formato de Array. Dominar Arrays é dominar o PHP.</p>
+
+            <h3>Array Indexado (Lista Simples)</h3>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Duas formas de criar
+$frutas = array("Maçã", "Banana", "Laranja"); // Forma antiga
+$frutas = ["Maçã", "Banana", "Laranja"];      // Forma moderna (preferida)
+
+// Acessando por posição (sempre começa no ZERO!)
+echo $frutas[0]; // "Maçã"
+echo $frutas[2]; // "Laranja"
+
+// Contando elementos
+echo count($frutas); // 3
+
+// Adicionando um novo item ao final
+$frutas[] = "Uva";
+echo count($frutas); // Agora é 4
+?&gt;
+                </code></pre>
+            </div>
+
+            <h3>Array Associativo (Chave → Valor)</h3>
+            <p>Em vez de posições numéricas, cada slot tem um nome descritivo. É a estrutura que representa registros de banco de dados.</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$produto = [
+    "id"       => 1,
+    "nome"     => "Notebook Dell",
+    "preco"    => 3500.00,
+    "estoque"  => 15,
+    "ativo"    => true
+];
+
+// Acesso por chave
+echo "Produto: " . $produto["nome"];
+echo "Preço: R$ " . $produto["preco"];
+
+// Modificando um valor
+$produto["preco"] = 3200.00;
+
+// Verificando se uma chave existe
+if (array_key_exists("estoque", $produto)) {
+    echo "Temos " . $produto["estoque"] . " unidades.";
+}
+?&gt;
+                </code></pre>
+            </div>
+
+            <h3>Array Multidimensional (Matriz)</h3>
+            <p>É uma lista de Arrays. Isso simula exatamente o que uma tabela de banco de dados retorna: várias linhas, cada uma com várias colunas.</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Imagine isso como uma tabela "usuarios" do banco de dados
+$usuarios = [
+    ["id" => 1, "nome" => "Alice",  "email" => "alice@mail.com", "admin" => true ],
+    ["id" => 2, "nome" => "Bruno",  "email" => "bruno@mail.com", "admin" => false],
+    ["id" => 3, "nome" => "Carla",  "email" => "carla@mail.com", "admin" => false],
+];
+
+// Renderizando como tabela HTML com foreach
+echo "&lt;table border='1'&gt;";
+echo "&lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Nome&lt;/th&gt;&lt;th&gt;Email&lt;/th&gt;&lt;th&gt;Admin?&lt;/th&gt;&lt;/tr&gt;";
+
+foreach ($usuarios as $user) {
+    $adminLabel = $user["admin"] ? "✅ Sim" : "❌ Não";
+    echo "&lt;tr&gt;";
+    echo "&lt;td&gt;" . $user["id"]    . "&lt;/td&gt;";
+    echo "&lt;td&gt;" . $user["nome"]  . "&lt;/td&gt;";
+    echo "&lt;td&gt;" . $user["email"] . "&lt;/td&gt;";
+    echo "&lt;td&gt;" . $adminLabel   . "&lt;/td&gt;";
+    echo "&lt;/tr&gt;";
+}
+echo "&lt;/table&gt;";
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Atividade 1.5 — A Vitrine de Produtos:</strong><br><br>
+                Crie um arquivo <code>vitrine.php</code>. Monte um array multidimensional com 4 produtos (cada um com <code>nome</code>, <code>preco</code> e <code>estoque</code>). Use um <code>foreach</code> para imprimir cada produto. Se o estoque for 0, exiba "Esgotado" em vermelho. Se estiver disponível, exiba "Em Estoque" em verde.<br><br>
+                <strong>Bônus:</strong> Calcule e exiba o valor total de todos os produtos em estoque (preco × estoque) ao final da lista.</p>
+            </div>
+        </section>
+
+        <!-- ─── FUNÇÕES DE ARRAY ─── -->
+        <section id="funcoes-arrays">
+            <h2>Funções Nativas de Arrays</h2>
+            <p>O PHP vem de fábrica com mais de 70 funções para manipular Arrays. Conhecer as principais poupa centenas de linhas de código.</p>
+
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$numeros = [5, 3, 8, 1, 9, 2, 7];
+$nomes   = ["Carlos", "Ana", "Bruno", "Zara"];
+
+// ===== ORDENAÇÃO =====
+sort($numeros);         // Ordena do menor para o maior (modifica o original)
+rsort($numeros);        // Ordena do maior para o menor
+asort($nomes);          // Ordena mantendo as chaves associativas
+ksort($nomes);          // Ordena pelas chaves
+
+// ===== BUSCA =====
+$pos = array_search("Ana", $nomes); // Retorna a chave onde "Ana" foi encontrada
+$existe = in_array("Ana", $nomes);  // Retorna true ou false
+
+// ===== TRANSFORMAÇÃO =====
+$precos   = [100, 200, 150, 300];
+$comDesconto = array_map(fn($p) => $p * 0.9, $precos); // Aplica 10% de desconto em todos
+$caros       = array_filter($precos, fn($p) => $p > 150); // Filtra só os acima de 150
+$total       = array_sum($precos);  // Soma todos: 750
+$maximo      = max($precos);        // Maior valor: 300
+$minimo      = min($precos);        // Menor valor: 100
+
+// ===== MANIPULAÇÃO =====
+array_push($nomes, "Diego");  // Adiciona ao final
+array_pop($nomes);            // Remove do final
+array_shift($nomes);          // Remove do início
+$fatias = array_slice($nomes, 1, 2); // Pega 2 itens a partir do índice 1
+$merged = array_merge([1,2], [3,4]); // Junta dois arrays: [1,2,3,4]
+
+print_r($comDesconto);
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="cheat-sheet">
+                <div class="cheat-sheet-header">📌 Funções de Array Essenciais</div>
+                <table>
+                    <tr><th>Função</th><th>O que faz?</th></tr>
+                    <tr><td><code>count($arr)</code></td><td>Conta quantos itens tem no array</td></tr>
+                    <tr><td><code>sort() / rsort()</code></td><td>Ordena crescente / decrescente</td></tr>
+                    <tr><td><code>in_array($val, $arr)</code></td><td>Checa se um valor existe no array</td></tr>
+                    <tr><td><code>array_key_exists($k,$arr)</code></td><td>Checa se uma chave existe</td></tr>
+                    <tr><td><code>array_map($fn, $arr)</code></td><td>Transforma cada item com uma função</td></tr>
+                    <tr><td><code>array_filter($arr, $fn)</code></td><td>Filtra itens que passam na condição</td></tr>
+                    <tr><td><code>array_merge($a, $b)</code></td><td>Junta dois arrays em um</td></tr>
+                    <tr><td><code>array_sum($arr)</code></td><td>Soma todos os valores numéricos</td></tr>
+                    <tr><td><code>array_unique($arr)</code></td><td>Remove valores duplicados</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ─── FUNÇÕES ─── -->
+        <section id="funcoes">
+            <h2>Funções, Escopo, Tipagem e Arrow Functions</h2>
+            <p>Funções são o pilar da reutilização de código. Em vez de copiar e colar o mesmo bloco 10 vezes, você escreve a lógica uma vez, dá um nome e invoca quantas vezes precisar.</p>
+
+            <h3>Criando e Usando Funções</h3>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Função simples com retorno
+function saudar(string $nome): string {
+    return "Olá, {$nome}! Bem-vindo.";
+}
+echo saudar("Felipe"); // "Olá, Felipe! Bem-vindo."
+
+// Parâmetro com valor padrão (opcional)
+function calcularDesconto(float $valor, float $taxa = 0.10): float {
+    return $valor - ($valor * $taxa);
+}
+echo calcularDesconto(200);       // Usa taxa padrão 10%: 180
+echo calcularDesconto(200, 0.25); // Taxa de 25%: 150
+
+// Tipagem de retorno (PHP 7+) garante que a função sempre devolva o tipo correto
+function dobrar(int $num): int {
+    return $num * 2;
+}
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="deep-dive">
+                <h4>🔍 O Escopo da Caixa Preta</h4>
+                <p>Variáveis criadas <em>dentro</em> de uma função só existem lá dentro. Código de fora não as enxerga. Da mesma forma, variáveis criadas <em>fora</em> da função não entram automaticamente. A única saída é o <code>return</code>. Isso é chamado de <strong>Escopo</strong> e evita que funções diferentes sobrescrevam acidentalmente as variáveis umas das outras.</p>
+            </div>
+
+            <h3>Arrow Functions (Funções de Seta)</h3>
+            <p>Uma sintaxe curta, moderna e elegante para funções de uma linha. Muito usada junto com <code>array_map</code> e <code>array_filter</code>:</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Função normal
+function triplicar($n) { return $n * 3; }
+
+// Arrow Function equivalente (muito mais curta!)
+$triplicar = fn($n) => $n * 3;
+echo $triplicar(10); // 30
+
+// Uso prático com array_map
+$precos = [100, 200, 300];
+$comImposto = array_map(fn($p) => $p * 1.12, $precos);
+// Resultado: [112, 224, 336]
+print_r($comImposto);
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Atividade 1.6 — A Calculadora de IMC:</strong><br><br>
+                Crie um arquivo <code>imc.php</code>. Declare uma função chamada <code>calcularIMC(float $peso, float $altura): float</code>. A fórmula é: <code>IMC = peso / (altura * altura)</code>.<br><br>
+                Depois, crie outra função chamada <code>classificarIMC(float $imc): string</code> que use <code>if/elseif</code> para retornar: "Abaixo do peso", "Peso normal", "Sobrepeso" ou "Obesidade".<br><br>
+                Chame ambas as funções com valores reais e exiba o resultado completo.</p>
+            </div>
+        </section>
+
+        <!-- ─── FORMULÁRIOS ─── -->
+        <section id="formularios">
+            <h2>Formulários: Entendendo GET vs POST e Validação</h2>
+            <p>A grande maioria dos sistemas web consiste em: Usuário preenche um formulário → PHP recebe e valida os dados → PHP salva no banco ou exibe resultado. Formulários são a espinha dorsal da interação web.</p>
+
+            <div class="cheat-sheet">
+                <div class="cheat-sheet-header">📌 GET vs POST: Saiba Quando Usar Cada Um</div>
+                <table>
+                    <tr><th>Critério</th><th>GET</th><th>POST</th></tr>
+                    <tr><td>Onde os dados ficam?</td><td>Na URL: <code>?nome=Ana&idade=30</code></td><td>No corpo da requisição (invisível na URL)</td></tr>
+                    <tr><td>Limite de dados</td><td>~2.000 caracteres</td><td>Ilimitado (ideal para imagens)</td></tr>
+                    <tr><td>Segurança</td><td>⚠️ Dados visíveis no histórico</td><td>✅ Mais seguro para dados sensíveis</td></tr>
+                    <tr><td>Quando usar?</td><td>Filtros, buscas, paginação</td><td>Login, cadastro, upload de arquivo</td></tr>
+                    <tr><td>Superglobal PHP</td><td><code>$_GET['campo']</code></td><td><code>$_POST['campo']</code></td></tr>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <div class="code-badge">PHP + HTML (formulario.php)</div>
+                <pre><code class="language-php">
+&lt;?php
+$erros  = [];
+$sucesso = "";
+
+// Só processa se o formulário foi enviado
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    
+    // 1. Captura os dados (trim remove espaços acidentais)
+    $nome  = trim($_POST["nome"]  ?? "");
+    $email = trim($_POST["email"] ?? "");
+    $idade = (int)($_POST["idade"] ?? 0);
+
+    // 2. VALIDAÇÃO (Nunca confie no usuário!)
+    if (empty($nome)) {
+        $erros[] = "O campo Nome é obrigatório.";
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erros[] = "O e-mail informado é inválido.";
+    }
+    if ($idade < 18 || $idade > 120) {
+        $erros[] = "A idade deve ser entre 18 e 120 anos.";
+    }
+    
+    // 3. Se não houver erros, processa
+    if (empty($erros)) {
+        $sucesso = "Cadastro de {$nome} realizado com sucesso!";
+    }
+}
+?&gt;
+
+&lt;!-- Exibindo erros ou sucesso -->
+&lt;?php foreach($erros as $erro): ?&gt;
+    &lt;p style="color:red"&gt;&lt;?= $erro ?&gt;&lt;/p&gt;
+&lt;?php endforeach; ?&gt;
+&lt;?php if($sucesso): ?&gt;
+    &lt;p style="color:green"&gt;&lt;?= $sucesso ?&gt;&lt;/p&gt;
+&lt;?php endif; ?&gt;
+
+&lt;form method="POST"&gt;
+    &lt;input type="text"   name="nome"  placeholder="Seu nome" required&gt;
+    &lt;input type="email"  name="email" placeholder="Seu email" required&gt;
+    &lt;input type="number" name="idade" placeholder="Sua idade"&gt;
+    &lt;button type="submit"&gt;Cadastrar&lt;/button&gt;
+&lt;/form&gt;
+                </code></pre>
+            </div>
+
+            <div class="laravel-bridge">
+                <h4>Ponte para o Laravel: Request e Validation</h4>
+                <p>No Laravel, toda essa validação manual vira apenas algumas linhas elegantes:<br>
+                <code>$request->validate(['nome'=>'required', 'email'=>'required|email', 'idade'=>'min:18']);</code><br>
+                O Laravel lança os erros automaticamente de volta para a tela, preenchendo as mensagens de erro sem você escrever nenhum <code>if</code>.</p>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Atividade 1.7 — Formulário de Login Simulado:</strong><br><br>
+                Crie um arquivo <code>login.php</code>. Crie um formulário HTML com campos de <code>usuario</code> e <code>senha</code>.<br>
+                No PHP, defina as variáveis <code>$usuarioCorreto = "admin"</code> e <code>$senhaCorreta = "1234"</code>.<br>
+                Quando o formulário for enviado via POST, compare os dados com <code>===</code>. Se baterem, mostre "Login efetuado com sucesso!". Caso contrário, mostre "Usuário ou senha incorretos."</p>
+            </div>
+        </section>
+
+        <!-- ─── SESSÕES ─── -->
+        <section id="sessoes">
+            <h2>Sessões e Cookies: Memória entre Páginas</h2>
+            <p>O PHP por si só é "sem memória". Cada vez que você carrega uma página, o PHP começa do zero. Mas um site de verdade precisa lembrar que você está logado! Para isso usamos <strong>Sessões</strong> e <strong>Cookies</strong>.</p>
+
+            <div class="info-box">
+                <strong>Sessão vs Cookie: Qual a diferença?</strong><br>
+                • <strong>Sessão ($_SESSION):</strong> Os dados ficam guardados no <em>servidor</em>. Mais seguro. Dura enquanto o navegador estiver aberto (ou até você chamar <code>session_destroy()</code>).<br>
+                • <strong>Cookie ($_COOKIE):</strong> Os dados ficam guardados no <em>navegador do usuário</em>. Menos seguro (pode ser manipulado). Útil para "Lembrar de mim", preferências de idioma, etc.
+            </div>
+
+            <h3>Trabalhando com Sessões</h3>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// OBRIGATÓRIO: session_start() deve ser a PRIMEIRA linha de todo arquivo que usa sessão
+session_start();
+
+// ===== SALVAR DADOS NA SESSÃO (ex: após o login) =====
+$_SESSION["usuario_id"]   = 42;
+$_SESSION["usuario_nome"] = "Felipe";
+$_SESSION["logado"]       = true;
+
+// ===== VERIFICAR SE O USUÁRIO ESTÁ LOGADO (em outra página) =====
+if (!isset($_SESSION["logado"]) || $_SESSION["logado"] !== true) {
+    header("Location: login.php"); // Redireciona para o login
+    exit(); // Para a execução do script!
+}
+
+echo "Bem-vindo, " . $_SESSION["usuario_nome"] . "!";
+
+// ===== LOGOUT (Destroi a sessão completamente) =====
+// session_destroy();
+?&gt;
+                </code></pre>
+            </div>
+
+            <h3>Trabalhando com Cookies</h3>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Criando um Cookie (deve ser feito ANTES de qualquer echo ou HTML!)
+// setcookie(nome, valor, tempo_de_expiração_em_segundos)
+$tempoCookie = time() + (30 * 24 * 60 * 60); // 30 dias
+setcookie("idioma_preferido", "pt-BR", $tempoCookie);
+setcookie("tema",             "escuro", $tempoCookie);
+
+// Lendo um Cookie
+if (isset($_COOKIE["idioma_preferido"])) {
+    $idioma = $_COOKIE["idioma_preferido"];
+    echo "Idioma definido: {$idioma}";
+}
+
+// Deletando um Cookie (define o tempo de expiração no passado)
+setcookie("idioma_preferido", "", time() - 3600);
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="laravel-bridge">
+                <h4>Ponte para o Laravel: Auth e Session</h4>
+                <p>O Laravel possui um sistema de autenticação completo que faz exatamente tudo isso de forma automática. Com um comando <code>php artisan breeze:install</code>, você ganha telas de Login, Registro, Reset de Senha e controle de sessão, tudo sem escrever uma linha de código!</p>
+            </div>
+        </section>
+
+        <!-- ─── INCLUDES ─── -->
+        <section id="includes">
+            <h2>Include, Require e Arquitetura de Arquivos</h2>
+            <p>Um projeto real tem dezenas ou centenas de páginas. O cabeçalho, o rodapé e a conexão com banco de dados são os mesmos em todas elas. Em vez de copiar e colar esse código em cada página, criamos arquivos separados e os importamos.</p>
+
+            <div class="code-container">
+                <div class="code-badge">PHP — Estrutura de Arquivos</div>
+                <pre><code class="language-php">
+&lt;?php
+// ===== INCLUDE vs REQUIRE =====
+// Se o arquivo NÃO for encontrado:
+include 'banner_promo.php';  // ⚠️ Aviso amarelo, mas o site continua
+require 'conexao.php';       // ❌ Erro FATAL, site trava imediatamente
+
+// ===== _ONCE: Evita inclusão duplicada =====
+require_once 'conexao.php';  // Se já foi incluído antes, ignora silenciosamente
+include_once 'funcoes.php';  // Mesmo comportamento
+
+// ===== EXEMPLO DE USO REAL em index.php =====
+require_once 'config/conexao.php';  // Conexão com o banco
+require_once 'includes/funcoes.php'; // Funções reutilizáveis
+
+include 'partials/header.php'; // Cabeçalho HTML
+
+echo "&lt;main&gt;Conteúdo principal da página aqui!&lt;/main&gt;";
+
+include 'partials/footer.php'; // Rodapé HTML
+?&gt;
+                </code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>Estrutura de Pastas Recomendada para Projetos PHP Puros</strong><br>
+                <code style="display:block; margin-top:10px; line-height:2; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                meu_projeto/<br>
+                ├── config/<br>
+                │   └── conexao.php    ← Dados do banco<br>
+                ├── includes/<br>
+                │   └── funcoes.php    ← Funções reutilizáveis<br>
+                ├── partials/<br>
+                │   ├── header.php     ← Cabeçalho HTML<br>
+                │   └── footer.php     ← Rodapé HTML<br>
+                ├── assets/            ← CSS, JS, Imagens<br>
+                └── index.php          ← Página principal
+                </code>
+            </div>
+        </section>
+
+        <!-- ─── ATIVIDADES FINAIS MÓDULO 1 ─── -->
+        <section id="atividades-mod1">
+            <h2>🏆 Atividades Finais — Módulo 1</h2>
+            <p>Chegou a hora de consolidar tudo. Estas atividades combinam múltiplos conceitos aprendidos. Tente resolver sem consultar o material antes de olhar as dicas!</p>
+
+            <div class="mini-task">
+                <p><strong>Desafio 1 — Calculadora Completa (Nível Fácil):</strong><br><br>
+                Crie um formulário HTML com dois campos numéricos e um <code>&lt;select&gt;</code> com as opções: Somar, Subtrair, Multiplicar, Dividir.<br>
+                No PHP, use um <code>match()</code> no valor selecionado para realizar a operação correta e exibir o resultado.<br>
+                <strong>Detalhe:</strong> Trate o caso de divisão por zero (mostre uma mensagem de erro amigável).</p>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Desafio 2 — A Lista de Tarefas em Array (Nível Médio):</strong><br><br>
+                Simule um sistema de To-Do list usando arrays. Crie um array com 5 tarefas, cada uma sendo um array associativo com <code>titulo</code>, <code>concluida</code> (boolean) e <code>prioridade</code> ("alta", "média" ou "baixa").<br>
+                Renderize todas as tarefas em uma lista HTML. Tarefas concluídas devem aparecer com o texto tachado. Tarefas de alta prioridade devem aparecer em negrito vermelho.<br>
+                No final, use <code>array_filter()</code> para contar quantas tarefas ainda estão pendentes e exiba o número.</p>
+            </div>
+
+            <div class="mini-task">
+                <p><strong>Desafio 3 — O Mini Sistema de Autenticação (Nível Chefe):</strong><br><br>
+                Crie um sistema com 3 arquivos:<br>
+                1. <strong>login.php</strong>: Formulário de login + validação com PHP. Se as credenciais baterem (você define quais são), salve o nome do usuário na <code>$_SESSION</code> e redirecione para a dashboard.<br>
+                2. <strong>dashboard.php</strong>: No início do arquivo, verifique se a sessão existe. Se não existir, redirecione para o login. Se existir, mostre: "Bem-vindo, [nome]!" e um link de logout.<br>
+                3. <strong>logout.php</strong>: Destrua a sessão com <code>session_destroy()</code> e redirecione para o login.<br><br>
+                <strong>Esse é exatamente o fluxo que o Laravel implementa automaticamente no seu sistema de Auth!</strong></p>
+            </div>
+        </section>
+
+
+
+
+            
+
+        <!-- ============================================== -->
+        <!-- MÓDULO 2: BANCO DE DADOS                       -->
+        <!-- ============================================== -->
+        <div class="module-divider" id="modulo2">
+            <span>Módulo 2</span>
+            <h1>O Domínio do Banco de Dados</h1>
+            <p style="margin-top: 15px; font-size: 1.2rem; color: #a1a1aa;">A etapa que separa sites estáticos de sistemas reais.</p>
+        </div>
+
+        <section id="mysql-intro">
+            <h2>PDO: O Padrão Ouro de Conexão</h2>
+            <p>Antigamente usava-se `mysql_connect()`, depois `mysqli`. Hoje, o padrão global da indústria é o <strong>PDO (PHP Data Objects)</strong>. O PDO é incrível porque ele consegue conversar com 12 tipos diferentes de bancos (MySQL, PostgreSQL, SQLite, Oracle) mudando apenas 1 linha de código!</p>
+            
+            <div class="deep-dive">
+                <h4>🔍 Try / Catch (Tratamento de Exceções)</h4>
+                <p>A conexão com o banco é a coisa mais sensível de um site. O servidor MySQL pode cair. A senha pode mudar. Em vez de deixar seu site vomitar um erro vermelho gigante para o cliente, "envolvemos" a tentativa de conexão num bloco <code>try</code> (Tente). Se explodir algum erro, o PDO lança uma "Exceção", e o bloco <code>catch</code> (Capture) entra em ação para lidar com o problema de forma silenciosa e elegante.</p>
+            </div>
+
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$host = "localhost";
+$db_name = "curso_php";
+$user = "root";
+$pass = ""; 
+
+try {
+    // 1. Criamos a string de DSN (Data Source Name)
+    $dsn = "mysql:host={$host};dbname={$db_name};charset=utf8";
+    
+    // 2. Instanciamos o objeto PDO
+    $pdo = new PDO($dsn, $user, $pass);
+    
+    // 3. Forçamos o PDO a lançar Exceções caso algo dê errado em Queries futuras
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    echo "Banco Online!";
+} catch (PDOException $e) {
+    // Se a senha estiver errada, a execução do "try" é abortada e pula direto pra cá!
+    // Num sistema real, gravaríamos isso num Log em vez de mostrar na tela.
+    die("Falha Catastrófica: " . $e->getMessage());
+}
+?&gt;
+                </code></pre>
+            </div>
+        </section>
+
+        <section id="mysql-insert">
+            <h2>CRIAR (Insert): O Segredo do Prepare</h2>
+            <p>Ao inserir dados vindos de um formulário preenchido por um humano na internet, você <strong>nunca, sob nenhuma hipótese</strong>, coloca a variável do usuário diretamente no comando SQL. Isso abre brecha para o hacker deletar seu banco inteiro.</p>
+            
+            <p>A técnica para inserir com segurança máxima chama-se <strong>Prepared Statements</strong>.</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// Dados vindo de um formulário hipotético (já sabemos que estão aqui)
+$nomeCliente = "Maria Sousa";
+$emailCliente = "maria@email.com";
+
+// 1. Escrevemos a Query, mas colocamos ? nos espaços vagos (Proteção máxima)
+$sql = "INSERT INTO usuarios (nome, email) VALUES (?, ?)";
+
+// 2. Preparamos o comando no banco (O banco checa a estrutura)
+$stmt = $pdo->prepare($sql);
+
+// 3. Executamos enviando um Array. O PDO substitui a 1ª interrogação pelo 
+// primeiro item do array, e a 2ª pelo segundo item, limpando os textos contra hacks!
+$stmt->execute([$nomeCliente, $emailCliente]); 
+
+echo "Cadastrado com sucesso no banco!";
+?&gt;
+                </code></pre>
+            </div>
+        </section>
+
+        <section id="mysql-select">
+            <h2>LER (Select): Fetch vs FetchAll</h2>
+            <p>Existem duas formas de pegar dados. Você quer apenas UM cliente (ex: Ver Perfil), ou quer TODOS os clientes (ex: Relatório de Vendas)?</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+// ============================================
+// CASO 1: Pegando TODOS os usuários (fetchAll)
+$sqlGeral = "SELECT id, nome FROM usuarios";
+$stmtGeral = $pdo->query($sqlGeral);
+
+// Puxa uma MATRIZ (Array de Arrays)
+$listaInteira = $stmtGeral->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($listaInteira as $linha) {
+    echo "ID: {$linha['id']} | Nome: {$linha['nome']} &lt;br&gt;";
+}
+
+// ============================================
+// CASO 2: Pegando UM único usuário com base no ID (fetch)
+$idBuscado = 5;
+$sqlUnico = "SELECT email FROM usuarios WHERE id = ?";
+$stmtUnico = $pdo->prepare($sqlUnico);
+$stmtUnico->execute([$idBuscado]);
+
+// Puxa apenas um Array Simples (uma linha do banco)
+$usuarioUnico = $stmtUnico->fetch(PDO::FETCH_ASSOC);
+
+// Verifica se achou alguém
+if ($usuarioUnico) {
+    echo "E-mail achado: " . $usuarioUnico['email'];
+} else {
+    echo "Usuário com ID 5 não existe!";
+}
+?&gt;
+                </code></pre>
+            </div>
+        </section>
+
+        <section id="mysql-update">
+            <h2>ATUALIZAR (Update): A Regra de Ouro do WHERE</h2>
+            <p>O UPDATE serve para mudar uma informação que já existe. (Ex: Mudar a senha). A regra de ouro de banco de dados é: <strong>O UPDATE precisa obrigatoriamente de uma condição WHERE (Onde)</strong>.</p>
+            <div class="info-box">
+                <strong>O clássico desastre</strong><br>
+                Se você fizer <code>UPDATE usuarios SET senha = 123</code> sem o WHERE, o banco vai alterar a senha de ABSOLUTAMENTE TODOS os usuários do seu sistema para 123 de uma vez só! Fim do sistema. Sempre diga QUAL usuário sofrerá o Update usando <code>WHERE id = X</code>.
+            </div>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$novoEmail = "maria_nova@email.com";
+$idDaMaria = 1;
+
+// "Atualize a tabela usuários, definindo o email para X, MAS APENAS ONDE o id for Y"
+$sql = "UPDATE usuarios SET email = ? WHERE id = ?";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$novoEmail, $idDaMaria]);
+
+// Podemos descobrir quantas linhas foram alteradas com isso:
+$linhasAlteradas = $stmt->rowCount();
+echo "Total de perfis atualizados: " . $linhasAlteradas;
+?&gt;
+                </code></pre>
+            </div>
+        </section>
+
+        <section id="mysql-delete">
+            <h2>DELETAR (Delete): Limpeza Segura</h2>
+            <p>Idêntico ao Update. Se esquecer o WHERE, você apaga a tabela inteira e sua carreira junto com ela.</p>
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+$idDoUsuarioASerExcluido = 10;
+
+$sql = "DELETE FROM usuarios WHERE id = ?";
+$stmt = $pdo->prepare($sql);
+
+if ($stmt->execute([$idDoUsuarioASerExcluido])) {
+    echo "Usuário excluído para sempre.";
+}
+?&gt;
+                </code></pre>
+            </div>
+            
+            <div class="laravel-bridge">
+                <h4>Ponte para o Laravel: Eloquent Substituto</h4>
+                <p>Nós aprendemos os comandos brutos: INSERT, SELECT, UPDATE, DELETE. É extremamente importante entender a lógica deles. Mas no Laravel, você faria toda essa seção inteira com simples comandos orientados a objeto.
+                <br>Exemplo de Insert no Laravel: <code>Usuario::create(['nome'=>'Maria', 'email'=>'x@x.com']);</code>
+                <br>Exemplo de Select: <code>$usuario = Usuario::find(5);</code>
+                <br>Exemplo de Update: <code>$usuario->update(['email' => 'novo@x.com']);</code>
+                <br>Exemplo de Delete: <code>$usuario->delete();</code>
+                <br><br>Muito mais fácil, não é? Mas por baixo dos panos, o Laravel está rodando exatamente os blocos PDO com interrogações que você acabou de aprender acima!</p>
+            </div>
+        </section>
+
+
+        <!-- ============================================== -->
+        <!-- MÓDULO 3: POO e LARAVEL                        -->
+        <!-- ============================================== -->
+        <div class="module-divider" id="modulo3">
+            <span>Módulo 3</span>
+            <h1>A Revolução da POO e o Laravel</h1>
+            <p style="margin-top: 15px; font-size: 1.2rem; color: #a1a1aa;">Moldando o pensamento de Engenharia de Software.</p>
+        </div>
+
+        <section id="poo-basico">
+            <h2>Classes, Objetos e a Visibilidade (Encapsulamento)</h2>
+            <p>O nível profissional não aceita dezenas de funções soltas num arquivo. Nós empacotamos propriedades e funções relacionadas dentro de Classes.</p>
+            
+            <div class="deep-dive">
+                <h4>🔍 O Conceito de Public e Private</h4>
+                <p>Quando você diz que a propriedade <code>$saldo</code> de uma Conta Bancária é `public` (Pública), qualquer pessoa programando no sistema pode fazer <code>$conta->saldo = -10000;</code> de fora da classe, quebrando a regra de negócio. <br>Por isso, usamos `private` (Privada). Assim, a variável só pode ser mexida por dentro da própria classe. Nós obrigamos o programador de fora a usar um método público controlado (como o método <code>sacar()</code>), que antes de tirar o dinheiro, vai fazer um `if` para checar se o cara tem saldo suficiente.</p>
+            </div>
+
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+class Conta {
+    // Só a própria classe pode mexer aqui dentro
+    private $saldo = 0; 
+    
+    // Método público (A porta de entrada controlada)
+    public function depositar($valor) {
+        if ($valor > 0) {
+            $this->saldo += $valor;
+        }
+    }
+    
+    // Getters: O único jeito de quem está de fora conseguir "Ler" o saldo
+    public function verSaldo() {
+        return $this->saldo;
+    }
+}
+
+$minhaConta = new Conta();
+$minhaConta->depositar(500);
+// $minhaConta->saldo = 9999999; <-- ISSO DARÁ UM ERRO FATAL! É PRIVADO!
+echo "Meu saldo real é: " . $minhaConta->verSaldo();
+?&gt;
+                </code></pre>
+            </div>
+        </section>
+
+        <section id="poo-avancado">
+            <h2>Herança e Construtores (A Base dos Frameworks)</h2>
+            <p>Um dos maiores poderes da POO é a reutilização violenta de código através da Herança (`extends`). O Construtor garante que o objeto já "nasça" do jeito certo.</p>
+            
+            <div class="code-container">
+                <div class="code-badge">PHP</div>
+                <pre><code class="language-php">
+&lt;?php
+class Inimigo {
+    protected $vida; // 'protected' é como private, mas os 'filhos' podem mexer!
+    
+    public function __construct($vidaInicial) {
+        $this->vida = $vidaInicial;
+        echo "Um inimigo surgiu com {$this->vida} HP!&lt;br&gt;";
+    }
+    
+    public function sofrerDano($dano) {
+        $this->vida -= $dano;
+    }
+}
+
+// O Chefão HERDA tudo que o Inimigo comum tem, e adiciona seus próprios golpes!
+class Chefao extends Inimigo {
+    public function ataqueEspecial() {
+        echo "O Chefão jogou fogo!&lt;br&gt;";
+    }
+}
+
+// O Construtor exige o HP na hora de criar (new)
+$boss = new Chefao(5000); 
+$boss->sofrerDano(100); // Ele herdou o método de sofrer dano!
+$boss->ataqueEspecial(); // Ele tem o ataque exclusivo dele!
+?&gt;
+                </code></pre>
+            </div>
+        </section>
+
+        <section id="laravel">
+            <h2>O Ecossistema Laravel Profundo</h2>
+            <p>Você dominou o ciclo. Agora entenda por que o Laravel é o rei do PHP. Ele é construído 100% sobre POO. Ele agrupa tudo que aprendemos em pastas organizadíssimas pelo famoso padrão <strong>MVC</strong>.</p>
+            
+            <div class="cheat-sheet">
+                <div class="cheat-sheet-header">O Fluxograma do Laravel na Prática</div>
+                <table>
+                    <tr><th>O Caminho</th><th>O que o Laravel faz?</th><th>Qual conceito PHP ele usa?</th></tr>
+                    <tr><td><strong>1. A Rota</strong> (web.php)</td><td>O usuário entra em `/produtos`. O Laravel checa o arquivo de rotas.</td><td>Utiliza Closures, Arrays associativos e require.</td></tr>
+                    <tr><td><strong>2. O Controller</strong></td><td>A rota manda a bola para o ProdutoController. Ele tem a regra de negócio e decide o que fazer.</td><td>Classes com visibilidade (public functions). Extends Controller base.</td></tr>
+                    <tr><td><strong>3. O Model</strong></td><td>O Controller pede para o ProdutoModel buscar tudo no banco. O Model usa o Eloquent para pegar os dados do MySQL.</td><td>Classes que herdam métodos de abstração do PDO (Conexões Seguras).</td></tr>
+                    <tr><td><strong>4. A View</strong> (Blade)</td><td>O Controller pega os dados do Model e joga numa tela HTML chamada View para renderizar.</td><td>Loops (Foreach) dentro do HTML (Template Engine) e Interpolação de variáveis.</td></tr>
+                </table>
+            </div>
+
+            <div class="mini-task">
+                <p style="font-size: 1.25rem; font-weight: 800; color: #10b981; margin-bottom: 10px;">🏆 JORNADA COMPLETA!</p>
+                <p>Você acaba de absorver a teoria completa de backend PHP moderno. O conhecimento acumulado aqui é o diferencial entre um "fazedores de código" e um Engenheiro de Software pleno.</p>
+                <p style="margin-top: 15px;">Instale o seu ambiente local (XAMPP e Composer). Abra o terminal (Prompt de Comando) e invoque o poder máximo digitando:<br>
+                <code style="background: rgba(0,0,0,0.5); padding: 8px 12px; margin-top: 12px; display:inline-block; border-radius: 6px; color: var(--accent-amber); font-size: 1.1rem; border: 1px solid rgba(245, 158, 11, 0.3);">composer create-project laravel/laravel primeiro_app</code></p>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        hljs.highlightAll();
+
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= (sectionTop - 350)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
